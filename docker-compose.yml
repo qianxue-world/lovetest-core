@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  activationcode-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: activationcode-api
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/activationcodes.db
+      - JwtSettings__SecretKey=change-this-to-a-secure-random-key-min-32-chars
+      - JwtSettings__Issuer=ActivationCodeApi
+      - JwtSettings__Audience=ActivationCodeApi
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/admin/stats"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
