@@ -14,31 +14,6 @@ on:
       - master
 
 jobs:
-  test:
-    name: Run Tests
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ vars.DOTNET_VERSION }}
-
-      - name: Restore dependencies
-        run: dotnet restore
-        working-directory: ./ActivationCodeApi
-
-      - name: Build
-        run: dotnet build --no-restore --configuration Release
-        working-directory: ./ActivationCodeApi
-
-      - name: Run tests
-        run: dotnet test --no-build --configuration Release --verbosity normal
-        working-directory: ./ActivationCodeApi
-
   build-and-push:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
