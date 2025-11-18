@@ -13,10 +13,6 @@ on:
       - main
       - master
 
-vars:
-  DOCKER_IMAGE_NAME: activationcode-api
-  DOTNET_VERSION: '7.0.x'
-
 jobs:
   test:
     name: Run Tests
