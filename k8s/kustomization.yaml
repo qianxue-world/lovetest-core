@@ -15,5 +15,5 @@ resources:
 - ingress.yaml
 
 images:
-- name: omaticaya/lovetest-api
+- name: omaticaya/lovetest-core
   newTag: latest
