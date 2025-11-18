@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lovetest-api
+  labels:
+    app: lovetest-api
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - api.lovetest.com.cn
+    secretName: lovetest-api-tls
+  rules:
+  - host: api.lovetest.com.cn
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: lovetest-api
+            port:
+              number: 80
