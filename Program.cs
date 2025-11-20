@@ -33,9 +33,6 @@ builder.Services.AddSingleton<TokenService>();
 // Add background service for cleanup
 builder.Services.AddHostedService<CodeCleanupService>();
 
-// Add rate limiting
-builder.Services.AddMemoryCache();
-
 var app = builder.Build();
 
 // Initialize database and admin account on startup
