@@ -140,6 +140,11 @@ Authorization: Bearer <your-jwt-token>
 |------|------|------|------|
 | code | string | 是 | 激活码 |
 
+**验证次数限制:**
+- 每个激活码最多可验证 **3次**
+- 超过3次验证后，激活码将失效
+- 每次验证都会增加计数，无论成功或失败
+
 **响应示例:**
 
 **成功 - 首次激活 (200 OK):**
@@ -147,7 +152,9 @@ Authorization: Bearer <your-jwt-token>
 {
   "isValid": true,
   "message": "Activation code successfully activated",
-  "expiresAt": "2025-11-27T12:00:00Z"
+  "expiresAt": "2025-11-27T12:00:00Z",
+  "validationCount": 1,
+  "remainingValidations": 2
 }
 ```
 
@@ -156,7 +163,9 @@ Authorization: Bearer <your-jwt-token>
 {
   "isValid": true,
   "message": "Activation code is valid",
-  "expiresAt": "2025-11-27T12:00:00Z"
+  "expiresAt": "2025-11-27T12:00:00Z",
+  "validationCount": 2,
+  "remainingValidations": 1
 }
 ```
 
@@ -174,7 +183,20 @@ Authorization: Bearer <your-jwt-token>
 {
   "isValid": false,
   "message": "Activation code has expired",
-  "expiresAt": null
+  "expiresAt": null,
+  "validationCount": 2,
+  "remainingValidations": 1
+}
+```
+
+**错误 - 验证次数超限 (400 Bad Request):**
+```json
+{
+  "isValid": false,
+  "message": "Activation code has been invalidated due to excessive validation attempts",
+  "expiresAt": null,
+  "validationCount": 4,
+  "remainingValidations": 0
 }
 ```
 
@@ -186,6 +208,16 @@ Authorization: Bearer <your-jwt-token>
   "expiresAt": null
 }
 ```
+
+**响应字段:**
+
+| 字段 | 类型 | 描述 |
+|------|------|------|
+| isValid | boolean | 激活码是否有效 |
+| message | string | 响应消息 |
+| expiresAt | datetime | 过期时间（未激活时为null） |
+| validationCount | integer | 已验证次数 |
+| remainingValidations | integer | 剩余可验证次数 |
 
 **cURL 示例:**
 ```bash

@@ -43,40 +43,70 @@ public class ActivationController : ControllerBase
             });
         }
 
+        // 增加验证次数
+        activationCode.ValidationCount++;
+        activationCode.LastValidatedAt = DateTime.UtcNow;
+
+        // 检查验证次数是否超过限制
+        if (activationCode.ValidationCount > 3)
+        {
+            await _context.SaveChangesAsync();
+            
+            _logger.LogWarning($"Activation code validation limit exceeded: {request.Code}, count: {activationCode.ValidationCount}");
+            return BadRequest(new ValidateCodeResponse
+            {
+                IsValid = false,
+                Message = "Activation code has been invalidated due to excessive validation attempts",
+                ValidationCount = activationCode.ValidationCount,
+                RemainingValidations = 0
+            });
+        }
+
         if (activationCode.IsUsed)
         {
             if (activationCode.ExpiresAt.HasValue && activationCode.ExpiresAt.Value > DateTime.UtcNow)
             {
+                await _context.SaveChangesAsync();
+                
                 return Ok(new ValidateCodeResponse
                 {
                     IsValid = true,
                     Message = "Activation code is valid",
-                    ExpiresAt = activationCode.ExpiresAt
+                    ExpiresAt = activationCode.ExpiresAt,
+                    ValidationCount = activationCode.ValidationCount,
+                    RemainingValidations = Math.Max(0, 3 - activationCode.ValidationCount)
                 });
             }
             else
             {
+                await _context.SaveChangesAsync();
+                
                 return BadRequest(new ValidateCodeResponse
                 {
                     IsValid = false,
-                    Message = "Activation code has expired"
+                    Message = "Activation code has expired",
+                    ValidationCount = activationCode.ValidationCount,
+                    RemainingValidations = Math.Max(0, 3 - activationCode.ValidationCount)
                 });
             }
         }
 
+        // 首次激活
         activationCode.IsUsed = true;
         activationCode.ActivatedAt = DateTime.UtcNow;
         activationCode.ExpiresAt = DateTime.UtcNow.AddDays(7);
 
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation($"Activation code activated: {request.Code}, expires at: {activationCode.ExpiresAt}");
+        _logger.LogInformation($"Activation code activated: {request.Code}, expires at: {activationCode.ExpiresAt}, validation count: {activationCode.ValidationCount}");
 
         return Ok(new ValidateCodeResponse
         {
             IsValid = true,
             Message = "Activation code successfully activated",
-            ExpiresAt = activationCode.ExpiresAt
+            ExpiresAt = activationCode.ExpiresAt,
+            ValidationCount = activationCode.ValidationCount,
+            RemainingValidations = Math.Max(0, 3 - activationCode.ValidationCount)
         });
     }
 }

@@ -7,4 +7,6 @@ public class ActivationCode
     public bool IsUsed { get; set; }
     public DateTime? ActivatedAt { get; set; }
     public DateTime? ExpiresAt { get; set; }
+    public int ValidationCount { get; set; } = 0;
+    public DateTime? LastValidatedAt { get; set; }
 }
