@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: lovetest-data
-  namespace: lovetest
+  namespace: lovetest-core
   labels:
     app: lovetest-api
 spec:

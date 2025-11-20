@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: lovetest-api
-  namespace: lovetest
+  namespace: lovetest-core
   labels:
     app: lovetest-api
 spec:
