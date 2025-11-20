@@ -82,8 +82,6 @@ if (app.Environment.IsDevelopment())
 // Enable CORS
 app.UseCors("AllowAll");
 
-app.UseIpRateLimiting();
-
 // Add API key authentication middleware
 app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
 
