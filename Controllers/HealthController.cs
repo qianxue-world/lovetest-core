@@ -149,7 +149,7 @@ public class HealthController : ControllerBase
         try
         {
             // 检查数据库连接
-            var dbConnected = await _context.Database.CanConnectAsync();
+            var dbConnected = _context.CanConnect();
             health.checks["database"] = new
             {
                 status = dbConnected ? "healthy" : "unhealthy",
@@ -159,8 +159,8 @@ public class HealthController : ControllerBase
             // 检查数据库初始化
             if (dbConnected)
             {
-                var adminCount = await _context.AdminUsers.CountAsync();
-                var codeCount = await _context.ActivationCodes.CountAsync();
+                var adminCount = _context.AdminUsers.Count();
+                var codeCount = _context.ActivationCodes.Count();
                 
                 health.checks["database_data"] = new
                 {
