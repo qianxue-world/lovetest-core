@@ -226,6 +226,88 @@ public class AdminController : ControllerBase
         return Ok(new { message = $"Deleted {expiredCodes.Count} expired codes" });
     }
 
+    [HttpPost("codes/batch-delete")]
+    public async Task<ActionResult<BatchDeleteResponse>> BatchDeleteCodes([FromBody] BatchDeleteRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Pattern))
+        {
+            return BadRequest(new BatchDeleteResponse
+            {
+                Success = false,
+                Message = "Pattern is required"
+            });
+        }
+
+        try
+        {
+            // 验证正则表达式
+            var regex = new System.Text.RegularExpressions.Regex(request.Pattern);
+
+            // 获取所有激活码
+            var allCodes = await _context.ActivationCodes.ToListAsync();
+
+            // 使用正则表达式匹配
+            var matchedCodes = allCodes
+                .Where(c => regex.IsMatch(c.Code))
+                .ToList();
+
+            var matchedCodeStrings = matchedCodes.Select(c => c.Code).ToList();
+
+            // 如果是试运行，只返回匹配结果
+            if (request.DryRun)
+            {
+                _logger.LogInformation($"Dry run: Found {matchedCodes.Count} codes matching pattern '{request.Pattern}'");
+                
+                return Ok(new BatchDeleteResponse
+                {
+                    Success = true,
+                    Message = $"Dry run completed. Found {matchedCodes.Count} matching codes",
+                    MatchedCount = matchedCodes.Count,
+                    DeletedCount = 0,
+                    MatchedCodes = matchedCodeStrings,
+                    WasDryRun = true
+                });
+            }
+
+            // 实际删除
+            if (matchedCodes.Any())
+            {
+                _context.ActivationCodes.RemoveRange(matchedCodes);
+                await _context.SaveChangesAsync();
+                
+                _logger.LogInformation($"Batch deleted {matchedCodes.Count} codes matching pattern '{request.Pattern}'");
+            }
+
+            return Ok(new BatchDeleteResponse
+            {
+                Success = true,
+                Message = $"Successfully deleted {matchedCodes.Count} codes",
+                MatchedCount = matchedCodes.Count,
+                DeletedCount = matchedCodes.Count,
+                MatchedCodes = matchedCodeStrings,
+                WasDryRun = false
+            });
+        }
+        catch (System.Text.RegularExpressions.RegexParseException ex)
+        {
+            _logger.LogWarning($"Invalid regex pattern: {request.Pattern}");
+            return BadRequest(new BatchDeleteResponse
+            {
+                Success = false,
+                Message = $"Invalid regex pattern: {ex.Message}"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error during batch delete with pattern: {request.Pattern}");
+            return StatusCode(500, new BatchDeleteResponse
+            {
+                Success = false,
+                Message = $"Error during batch delete: {ex.Message}"
+            });
+        }
+    }
+
     [HttpPost("init-database")]
     public async Task<ActionResult> InitializeDatabase()
     {

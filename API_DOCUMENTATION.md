@@ -499,7 +499,134 @@ curl -X GET http://api.lovetest.com.cn/api/admin/stats \
 
 ---
 
-### 6. 删除指定激活码
+### 6. 批量删除激活码（正则表达式）
+
+使用正则表达式批量删除匹配的激活码。
+
+**端点:** `POST /api/admin/codes/batch-delete`
+
+**认证:** 需要 (Bearer Token)
+
+**请求体:**
+```json
+{
+  "pattern": "^TEST-.*",
+  "dryRun": false
+}
+```
+
+**请求参数:**
+
+| 字段 | 类型 | 必填 | 描述 |
+|------|------|------|------|
+| pattern | string | 是 | 正则表达式模式 |
+| dryRun | boolean | 否 | 试运行模式（默认: false）。true时只返回匹配结果，不实际删除 |
+
+**正则表达式示例:**
+
+| 模式 | 描述 | 匹配示例 |
+|------|------|----------|
+| `^TEST-.*` | 以TEST-开头 | TEST-001, TEST-ABC |
+| `.*-2024$` | 以-2024结尾 | CODE-2024, PROD-2024 |
+| `^DEMO-\d+$` | DEMO-加数字 | DEMO-123, DEMO-456 |
+| `^(TEST\|DEMO)-.*` | TEST或DEMO开头 | TEST-001, DEMO-ABC |
+| `.*OLD.*` | 包含OLD | OLD-CODE, TESTOLD |
+
+**响应示例:**
+
+**试运行 (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Dry run completed. Found 150 matching codes",
+  "matchedCount": 150,
+  "deletedCount": 0,
+  "matchedCodes": [
+    "TEST-CODE-001",
+    "TEST-CODE-002",
+    "TEST-CODE-003"
+  ],
+  "wasDryRun": true
+}
+```
+
+**实际删除 (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Successfully deleted 150 codes",
+  "matchedCount": 150,
+  "deletedCount": 150,
+  "matchedCodes": [
+    "TEST-CODE-001",
+    "TEST-CODE-002",
+    "TEST-CODE-003"
+  ],
+  "wasDryRun": false
+}
+```
+
+**错误 - 无效的正则表达式 (400 Bad Request):**
+```json
+{
+  "success": false,
+  "message": "Invalid regex pattern: parsing \"[\" - Unterminated [] set.",
+  "matchedCount": 0,
+  "deletedCount": 0,
+  "matchedCodes": [],
+  "wasDryRun": false
+}
+```
+
+**使用建议:**
+1. **先使用试运行模式** (`dryRun: true`) 查看会删除哪些激活码
+2. 确认无误后，再设置 `dryRun: false` 执行实际删除
+3. 谨慎使用通配符模式，避免误删
+
+**cURL 示例:**
+```bash
+TOKEN="your-jwt-token"
+
+# 试运行 - 查看会删除哪些激活码
+curl -X POST http://api.lovetest.com.cn/api/admin/codes/batch-delete \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{
+    "pattern": "^TEST-.*",
+    "dryRun": true
+  }'
+
+# 实际删除
+curl -X POST http://api.lovetest.com.cn/api/admin/codes/batch-delete \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{
+    "pattern": "^TEST-.*",
+    "dryRun": false
+  }'
+
+# 删除所有以DEMO开头的激活码
+curl -X POST http://api.lovetest.com.cn/api/admin/codes/batch-delete \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{
+    "pattern": "^DEMO-",
+    "dryRun": false
+  }'
+
+# 删除包含"OLD"的激活码
+curl -X POST http://api.lovetest.com.cn/api/admin/codes/batch-delete \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{
+    "pattern": ".*OLD.*",
+    "dryRun": false
+  }'
+```
+
+---
+
+### 7. 删除指定激活码
 
 删除单个激活码。
 
@@ -538,7 +665,7 @@ curl -X DELETE http://api.lovetest.com.cn/api/admin/codes/TEST-CODE-001 \
 
 ---
 
-### 7. 删除所有过期激活码
+### 8. 删除所有过期激活码
 
 批量删除所有已过期的激活码。
 
@@ -562,7 +689,7 @@ curl -X DELETE http://api.lovetest.com.cn/api/admin/codes/expired \
 
 ---
 
-### 8. 初始化数据库
+### 9. 初始化数据库
 
 手动初始化数据库（通常不需要，启动时自动执行）。
 
