@@ -17,4 +17,4 @@ resources:
 
 images:
 - name: omaticaya/lovetest-core
-  newTag: 1.0.1
+  newTag: 1.0.2
