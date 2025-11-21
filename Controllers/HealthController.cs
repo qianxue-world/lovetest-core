@@ -36,7 +36,7 @@ public class HealthController : ControllerBase
     /// 如果此端点失败，Kubernetes会将Pod从Service中移除
     /// </summary>
     [HttpGet("ready")]
-    public async Task<IActionResult> GetReadiness()
+    public IActionResult GetReadiness()
     {
         try
         {
@@ -93,12 +93,12 @@ public class HealthController : ControllerBase
     /// 用于慢启动的应用，避免在启动期间被liveness probe杀死
     /// </summary>
     [HttpGet("startup")]
-    public async Task<IActionResult> GetStartup()
+    public IActionResult GetStartup()
     {
         try
         {
             // 检查数据库是否已初始化
-            var canConnect = await _context.Database.CanConnectAsync();
+            var canConnect = _context.CanConnect();
             
             if (!canConnect)
             {
@@ -137,7 +137,7 @@ public class HealthController : ControllerBase
     /// 综合健康检查 - 返回详细的健康状态
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetHealth()
+    public IActionResult GetHealth()
     {
         var health = new
         {
