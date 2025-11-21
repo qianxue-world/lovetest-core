@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: omaticaya/lovetest-core:1.0.3
+        image: omaticaya/lovetest-core:1.0.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
@@ -28,7 +28,7 @@ spec:
         - name: ASPNETCORE_URLS
           value: "http://+:8080"
         - name: ConnectionStrings__DefaultConnection
-          value: "Data Source=/app/data/lovetests.db"
+          value: "Filename=/app/data/lovetests.db;Connection=shared"
         - name: JwtSettings__SecretKey
           valueFrom:
             secretKeyRef:
