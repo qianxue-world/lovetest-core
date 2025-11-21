@@ -434,8 +434,29 @@ kubectl get events -n lovetest --watch
    - 使用HPA自动扩缩容
    - 监控资源使用情况
 
+## 版本管理
+
+Kubernetes清单中的镜像版本会自动更新。详见 [版本管理文档](VERSION_MANAGEMENT.md)。
+
+### 快速命令
+
+```bash
+# 查看当前版本
+cat ../VERSION
+
+# 手动更新k8s清单到当前版本
+../../scripts/update-k8s-version.sh
+
+# 部署特定版本
+kubectl set image deployment/lovetest-api \
+  api=omaticaya/lovetest-core:1.0.5 \
+  -n lovetest
+```
+
 ## 相关文档
 
+- [版本管理](VERSION_MANAGEMENT.md)
 - [API文档](../API_DOCUMENTATION.md)
 - [部署文档](../DEPLOYMENT.md)
+- [版本控制](../VERSIONING.md)
 - [README](../README.md)

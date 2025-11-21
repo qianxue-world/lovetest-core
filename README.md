@@ -1,14 +1,30 @@
 # Activation Code API
 
-A simple .NET 7 API service for validating activation codes with SQLite storage.
+A simple .NET 7 API service for validating activation codes with LiteDB storage.
 
 ## Features
 
 - Validate activation codes via REST API
 - Mark codes as used with 7-day expiration
+- Validation attempt limits (max 3 attempts)
 - Automatic cleanup of expired codes (runs hourly)
-- SQLite database for local storage
+- LiteDB NoSQL database for local storage
 - Pre-seeded test codes
+- Automatic version bumping on commits
+- JWT authentication for admin endpoints
+- Rate limiting (3 req/min, 10 req/hour)
+- CORS support
+- Kubernetes health checks
+
+## Quick Setup
+
+### Install Git Hooks (for auto-versioning)
+
+```bash
+./scripts/install-hooks.sh
+```
+
+This installs a pre-commit hook that automatically increments the version by 0.0.1 on every commit.
 
 ## Running the API
 
