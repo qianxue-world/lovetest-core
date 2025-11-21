@@ -26,6 +26,18 @@ A simple .NET 7 API service for validating activation codes with LiteDB storage.
 
 This installs a pre-commit hook that automatically increments the version by 0.0.1 on every commit.
 
+📖 **See [GITOPS_WORKFLOW.md](GITOPS_WORKFLOW.md) for complete GitOps workflow including:**
+- Automated version bumping and propagation
+- CI/CD pipeline with version write-back
+- ArgoCD integration
+- Rollback procedures
+
+📖 **See [ARGOCD_INTEGRATION.md](ARGOCD_INTEGRATION.md) for ArgoCD setup:**
+- Complete ArgoCD configuration
+- Automatic deployment on every push
+- Monitoring and notifications
+- Troubleshooting guide
+
 ## Running the API
 
 ### Local Development
