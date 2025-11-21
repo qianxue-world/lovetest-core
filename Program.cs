@@ -22,7 +22,7 @@ builder.Services.AddCors(options =>
 });
 
 // Add LiteDB database
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Filename=activationcodes.db;Connection=shared";
+var connectionString = "Filename=activationcodes.db;Connection=shared";
 builder.Services.AddSingleton(new LiteDbContext(connectionString));
 
 // Add custom services
