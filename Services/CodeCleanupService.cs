@@ -1,5 +1,4 @@
 using ActivationCodeApi.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace ActivationCodeApi.Services;
 
@@ -37,18 +36,23 @@ public class CodeCleanupService : BackgroundService
     private async Task CleanupExpiredCodes()
     {
         using var scope = _serviceProvider.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<LiteDbContext>();
 
         var now = DateTime.UtcNow;
-        var expiredCodes = await dbContext.ActivationCodes
-            .Where(c => c.IsUsed && c.ExpiresAt != null && c.ExpiresAt < now)
-            .ToListAsync();
+        var expiredCodes = dbContext.ActivationCodes
+            .Find(c => c.IsUsed && c.ExpiresAt != null && c.ExpiresAt < now)
+            .ToList();
 
         if (expiredCodes.Any())
         {
-            dbContext.ActivationCodes.RemoveRange(expiredCodes);
-            await dbContext.SaveChangesAsync();
+            foreach (var code in expiredCodes)
+            {
+                dbContext.ActivationCodes.Delete(code.Id);
+            }
+            
             _logger.LogInformation($"Deleted {expiredCodes.Count} expired activation codes");
         }
+        
+        await Task.CompletedTask;
     }
 }
